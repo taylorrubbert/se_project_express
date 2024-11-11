@@ -1,9 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  BAD_REQUEST_STATUS_CODE,
-  NOT_FOUND_STATUS_CODE,
-  SERVER_ERROR_STATUS_CODE,
-} = require("../utils/errors");
+const { error500, error404, error400 } = require("../utils/errors");
 
 const getItems = (req, res) => {
   ClothingItem.find({})
@@ -11,56 +7,48 @@ const getItems = (req, res) => {
     .catch((err) => {
       console.error(err);
       return res
-        .status(SERVER_ERROR_STATUS_CODE)
-        .send({ message: "An error has occurred on the server" });
+        .status(error500)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
 const createItem = (req, res) => {
-  console.log(req);
-  console.log(req.user._id);
   const { name, weather, imageUrl } = req.body;
-
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
-    .then((item) => res.status(201).send(item))
+  const owner = req.user._id;
+  ClothingItem.create({ name, weather, imageUrl, owner })
+    .then((item) => {
+      res.status(201).send(item);
+    })
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: "Invalid data" });
+      if (err.name === "ValidationError") {
+        return res.status(error400).send({ message: err.message });
       }
       return res
-        .status(SERVER_ERROR_STATUS_CODE)
-        .send({ message: "An error has occurred on the server" });
+        .status(error500)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
 const deleteItem = (req, res) => {
-  const { itemId } = req.params;
-  console.log(itemId);
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findByIdAndRemove(req.params.itemId)
     .orFail()
     .then((item) => res.send(item))
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: "Invalid data" });
+      if (err.name === "error400") {
+        return res.status(error400).send({ message: err.message });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NOT_FOUND_STATUS_CODE)
-          .send({ message: "Requested resource not found" });
+      if (err.name === "error404") {
+        return res.status(error404).send({ message: err.message });
       }
       return res
-        .status(SERVER_ERROR_STATUS_CODE)
-        .send({ message: "An error has occurred on the server" });
+        .status(error500)
+        .send({ message: "An error has ocurred to the server" });
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res) =>
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } },
@@ -70,52 +58,36 @@ const likeItem = (req, res) => {
     .then((item) => res.send(item))
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: "Invalid data" });
+      if (err.name === "error404") {
+        return res.status(error404).send({ message: err.message });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NOT_FOUND_STATUS_CODE)
-          .send({ message: "Requested resource not found" });
+      if (err.name === "error400") {
+        return res.status(error400).send({ message: "Invalid data" });
       }
       return res
-        .status(SERVER_ERROR_STATUS_CODE)
+        .status(error500)
         .send({ message: "An error has occurred on the server" });
     });
-};
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res) =>
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
-    .then((item) => res.send(item))
+    .then((item) => res.status(200).send(item))
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: "Invalid data" });
+      if (err.name === "error404") {
+        return res.status(error404).send({ message: err.message });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NOT_FOUND_STATUS_CODE)
-          .send({ message: "Requested resource not found" });
+      if (err.name === "error400") {
+        return res.status(error400).send({ message: "Invalid data" });
       }
       return res
-        .status(SERVER_ERROR_STATUS_CODE)
+        .status(error500)
         .send({ message: "An error has occurred on the server" });
     });
-};
 
-module.exports = {
-  createItem,
-  getItems,
-  deleteItem,
-  likeItem,
-  dislikeItem,
-};
+module.exports = { getItems, createItem, deleteItem, likeItem, dislikeItem };

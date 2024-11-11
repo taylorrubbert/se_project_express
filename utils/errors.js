@@ -1,11 +1,9 @@
-const BAD_REQUEST_STATUS_CODE = 400;
-
-const NOT_FOUND_STATUS_CODE = 404;
-
-const SERVER_ERROR_STATUS_CODE = 500;
+const error400 = 400;
+const error404 = 404;
+const error500 = 500;
 
 module.exports = {
-  BAD_REQUEST_STATUS_CODE,
-  NOT_FOUND_STATUS_CODE,
-  SERVER_ERROR_STATUS_CODE,
+  error400,
+  error404,
+  error500,
 };
