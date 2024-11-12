@@ -19,10 +19,10 @@ const getUserByID = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       console.error(err);
-      if (err.name === "error404") {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(error404).send({ message: err.message });
       }
-      if (err.name === "error400") {
+      if (err.name === "CastError") {
         return res.status(error400).send({ message: "Invalid data" });
       }
       return res
