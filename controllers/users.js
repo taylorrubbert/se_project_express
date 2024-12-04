@@ -1,6 +1,6 @@
-const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 const {
   error500,
   error404,
@@ -83,7 +83,7 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "UnauthorizedError") {
+      if (err.name === "Incorrect email or password") {
         return res.status(error401).send({ message: "Unauthorized" });
       }
       return res

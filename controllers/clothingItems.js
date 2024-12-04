@@ -1,5 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-const { error500, error404, error400 } = require("../utils/errors");
+const { error500, error404, error400, error403 } = require("../utils/errors");
 
 const getItems = (req, res) => {
   ClothingItem.find({})
@@ -31,9 +31,17 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  ClothingItem.findByIdAndRemove(req.params.itemId)
+  const { itemId } = req.params;
+  ClothingItem.findById(itemId)
     .orFail()
-    .then((item) => res.send(item))
+    .then((item) => {
+      if (String(item.owner) !== String(req.user._id)) {
+        return res.status(error403).send({ message: "Forbidden" });
+      }
+      return item
+        .deleteOne()
+        .then(() => res.status(200).send({ message: "Item deleted" }));
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
