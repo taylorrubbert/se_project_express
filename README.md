@@ -8,6 +8,8 @@ This back-end project is focused on creating a server for the WTWR application. 
 
 `npm run dev` — to launch the server with the hot reload feature
 
+Domain name: https://whattowear2025.jumpingcrab.com/
+
 ### Testing
 
 Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
