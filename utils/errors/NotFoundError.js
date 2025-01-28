@@ -1,3 +1,5 @@
+const { error404 } = require("../errors");
+
 class NotFoundError extends Error {
   constructor(message) {
     super(message);

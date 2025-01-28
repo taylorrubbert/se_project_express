@@ -1,3 +1,5 @@
+const { error400 } = require("../errors");
+
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
